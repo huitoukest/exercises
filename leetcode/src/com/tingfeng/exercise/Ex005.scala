@@ -16,7 +16,9 @@ package com.tingfeng.exercise;
 object Ex005 {
 
     def main(args: Array[String]): Unit = {
-        val sArray = Array("babad","cbbd","a","aa");
+        //"cbbd",
+        //
+        val sArray = Array("cbbd","caabaa");
         sArray.foreach(it => {
             println(longestPalindrome(it))
         })
@@ -26,16 +28,22 @@ object Ex005 {
         def find(strs: Array[Char],position: Int):Tuple2[Int,Int]={
             var result:Tuple2[Int,Int] = null
             if(position == 0 || position == strs.length - 1){
-                result = (position,position)
+                if(strs.length > 1 && position == 0 && strs(0) == strs(1)){
+                    result = (0,1)
+                }else if(strs.length > 1 && position == strs.length - 1 && strs(strs.length - 2) == strs(position)){
+                    result = (strs.length - 2,strs.length - 1)
+                }else{
+                    result = (position,position)
+                }
             }else{
                 var maxLength = Math.min(position + 1,strs.length - position) * 2
                 var length = 1
                 var isContinue = true
-                var paType = 0 // 0 = 偶数方式abb格式，1 = 奇数方式，2=偶数方式bbc
+                var paType = 0 // 0 = 偶数方式abb格式第1个字符是当前位置；1 = 奇数方式，2= 偶数方式bbc,第2个字符是当前位置
                 if(strs(position - 1) == strs(position)){
-                    paType = 0
-                }else if(strs(position + 1) == strs(position)){
                     paType = 2
+                }else if(strs(position + 1) == strs(position)){
+                    paType = 0
                 }else{
                     paType = 1
                 }
@@ -64,9 +72,9 @@ object Ex005 {
                 }
                 if(paType !=2 ){
                     if(paType == 0){
-                        result = (position - length / 2 - 1,position + length / 2 + 1)
+                        result = (position - length / 2 + 1,position + length / 2)
                     }else if(paType == 1){
-                        result = (position - length / 2,position + length / 2)
+                        result = (position - length / 2 ,position + length / 2)
                     }
                     if(length < maxLength){
                         var leftLength = 0
