@@ -17,15 +17,15 @@ object Ex005 {
 
     def main(args: Array[String]): Unit = {
         //"cbbd",
-        //
-        val sArray = Array("cbbd","caabaa");
+        //"","cccc","ccc","aab","bba","aaabaaaa","aa","a","aba","cbbd","babad","caabaa"
+        val sArray = Array( "","cccc","ccc","aab","bba","aaabaaaa","aa","a","aba","cbbd","babad","caabaa");
         sArray.foreach(it => {
             println(longestPalindrome(it))
         })
     }
 
     def longestPalindrome(s: String): String = {
-        def find(strs: Array[Char],position: Int):Tuple2[Int,Int]={
+        def find(strs: Array[Char],position: Int,currentMaxLength: Int):Tuple2[Int,Int]={
             var result:Tuple2[Int,Int] = null
             if(position == 0 || position == strs.length - 1){
                 if(strs.length > 1 && position == 0 && strs(0) == strs(1)){
@@ -39,66 +39,69 @@ object Ex005 {
                 var maxLength = Math.min(position + 1,strs.length - position) * 2
                 var length = 1
                 var isContinue = true
-                var paType = 0 // 0 = 偶数方式abb格式第1个字符是当前位置；1 = 奇数方式，2= 偶数方式bbc,第2个字符是当前位置
-                if(strs(position - 1) == strs(position)){
-                    paType = 2
-                }else if(strs(position + 1) == strs(position)){
-                    paType = 0
-                }else{
-                    paType = 1
-                }
-                if(paType == 1) {
-                    //以奇数方式统计
-                    for (i <- 1 until maxLength / 2 if isContinue) {
-                        if (strs(position - i) == strs(position + i)) {
-                            length += 2
-                        } else {
-                            isContinue = false
+                if(strs(position + 1) == strs(position)){
+                    if(maxLength > currentMaxLength) {
+                        //偶数方式计算=abb格式第1个字符是当前位置
+                        length = 2
+                        for (i <- 1 until maxLength / 2 if position - i >= 0 && position + i + 1 < strs.length && isContinue) {
+                            if (strs(position - i) == strs(position + i + 1)) {
+                                length += 2
+                            } else {
+                                isContinue = false
+                            }
                         }
-                    }
-                }else if(paType == 2){
-                    result = find(strs,position - 1)
-                }else{
-                    length = 2
-                    maxLength = maxLength - 1
-                    //以奇数方式统计
-                    for (i <- 1 until maxLength / 2  if isContinue) {
-                        if (strs(position - i) == strs(position + i + 1)) {
-                            length += 2
-                        } else {
-                            isContinue = false
-                        }
+                        result = (position - (length - 1) / 2, position + length / 2)
                     }
                 }
-                if(paType !=2 ){
-                    if(paType == 0){
-                        result = (position - length / 2 + 1,position + length / 2)
-                    }else if(paType == 1){
-                        result = (position - length / 2 ,position + length / 2)
+                var  length2 = 1;
+                isContinue = true;
+                if(strs(position + 1) == strs(position - 1)) {
+                    maxLength =  Math.min(position + 1,strs.length - position) * 2 + 1
+                    if(maxLength > currentMaxLength) {
+                        //以奇数方式统计
+                        for (i <- 1 until maxLength / 2 if isContinue) {
+                            if (strs(position - i) == strs(position + i)) {
+                                length2 += 2
+                            } else {
+                                isContinue = false
+                            }
+                        }
+                        if (length2 > length) {
+                            length = length2
+                            result = (position - length2 / 2, position + length2 / 2)
+                        }
                     }
-                    if(length < maxLength){
-                        var leftLength = 0
-                        var rightRight = 0
-                        var resultR = (position,position)
-                        var resultL = (position,position)
-                        if(position >= strs.length / 2){
-                            resultR = find(strs,position + 1)
-                            rightRight = resultR._2 - resultR._1 + 1
-                        }else if(position <= strs.length / 2){
-                            resultL = find(strs,position - 1)
-                            leftLength = resultL._2 - resultL._1 + 1
-                        }
-                        if(leftLength > length && leftLength >= rightRight){
-                            result = resultL
-                        }else if(rightRight > length && rightRight > leftLength){
-                            result = resultR
-                        }
+                }
+                if(result == null){
+                        result = (position,position)
+                }
+                if(length < maxLength){
+                    var leftLength = 0
+                    var rightRight = 0
+                    var resultR = (position,position)
+                    var resultL = (position,position)
+                    if(position >= strs.length / 2){
+                        resultR = find(strs,position + 1,length)
+                        rightRight = resultR._2 - resultR._1 + 1
+                    }
+                    if(position <= strs.length / 2){
+                        resultL = find(strs,position - 1,length)
+                        leftLength = resultL._2 - resultL._1 + 1
+                    }
+                    if(leftLength > length && leftLength >= rightRight){
+                        result = resultL
+                    }else if(rightRight > length && rightRight > leftLength){
+                        result = resultR
                     }
                 }
             }
             result
         }
-        val re = find(s.toCharArray,s.length / 2 )
-        s.substring(re._1,re._2 + 1)
+        if(s.length <= 0){
+            ""
+        }else {
+            val re = find(s.toCharArray, s.length / 2,0)
+            s.substring(re._1, re._2 + 1)
+        }
     }
 }
