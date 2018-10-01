@@ -30,6 +30,59 @@ const myDiv = React.createElement('div',null,'这是一个div元素',myh1)
 //这种在JS中混合写入类似于HTML的语法，叫做JSX语法。即符合XML规范的JS。可以通过babel将JSX语法转为JS语法。
 //注意：所以JSX的本质是运行的时候转为js语法。
 
-const myTest = <div id="myDiv" title="div aaa" > aaa 测试内容 myTests </div>
+//在{}中可以写一些js的表达式
+var a = 10
+var b = true
+var title = "i am a title"
+var arr = [
+    <h2>这是h2</h2>,
+    <h3>这是h3</h3>,
+    <h4>这是h4</h4>
+]
+var arrStr = ['AA',"BB","CC","DD"]
+
+//foreach 数据处理方案1，第二种方式就是在外部处理
+const nameArr = []
+arrStr.forEach(item => {
+    const tmp = <h5>{item}</h5>
+    nameArr.push(tmp)
+});
+
+console.log(nameArr)
+
+const result = arrStr.map(item =>{
+    return item + '~~'
+});
+console.log(result)
+
+const testA = <div>
+                    <hr/>
+                        {  a + 1 }
+                    <hr/>
+                        {  a + '你好' }
+                    <hr/>
+                        { b ? '条件真' : '条件假'}
+                    <hr/>
+                        <p title= {title} > 测试标签P </p>
+                    <hr/>
+                        {arr}
+                    <hr/>
+                        {arrStr}
+                    <hr />
+                    {
+                        arrStr.map(item=>{
+                            return <h3>{item + '-'}</h3>
+                        })
+                    }    
+                </div>
+
+
+
+const myTest = <div id="myDiv" title="div aaa" > 
+                    aaa 测试内容 myTests 
+                    { testA }
+                </div>
+
+
 ReactDOM.render(myTest,document.getElementById('app'))
 
