@@ -70,9 +70,7 @@ const testA = <div>
                         {arrStr}
                     <hr />
                     {
-                        arrStr.map(item=>{
-                            return <h3>{item + '-'}</h3>
-                        })
+                        arrStr.map(item=><h3>{item + '-'}</h3>)
                     }    
                 </div>
 
