@@ -27,5 +27,12 @@ module.exports = {
                  { test: /\.js|\.jsx/ ,use: 'babel-loader' , exclude: /node_modules/ }
            ]
 
+      },
+      resolve:{ //extensions:[]补全默认的文件后缀名
+            extensions: [".js",".json",".jsx"],
+            alias:{ // alias可以配置别名
+                  //这里的@符号配置为项目根目录下的src目录
+                  '@': path.join(__dirname,'./src')
+            }
       }
 } 
