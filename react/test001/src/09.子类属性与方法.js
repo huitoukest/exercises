@@ -1,4 +1,4 @@
-console.log("使用extends继承")
+console.log("09.子类属性与方法.js")
 //es6 中，class关键字是面向对象编程的新型式。
 
 
@@ -17,8 +17,9 @@ console.log(a1)
 
 //在class类中，可以使用extends关键字 实现子类继承父类
 class Chinese extends Person{
-      constructor(name,age){
+      constructor(name,age,IDNumber){
           super(name,age)
+          this.IDNumber = IDNumber
       }
 }
 /**
@@ -31,6 +32,6 @@ class Chinese extends Person{
  * 
  */
 
-const ch1 = new Chinese('chinese name',21)
+const ch1 = new Chinese('chinese name',21,1234567489)
 console.log(ch1)
 ch1.say()

@@ -1,4 +1,4 @@
-console.warn("runing in 06.js")
+console.warn("runing in 07.js")
 //es6 中，class关键字是面向对象编程的新型式。
 
 
