@@ -1,9 +1,7 @@
 import React from 'react'
-import ReactDOM from 'react-dom'
-import CmtItem from '@/components/CmtItem.jsx'
-//import CmtItem from './components/CmtItem.jsx'
+import CmtItem2 from '@/components/CmtItem.2.jsx'
 
-export default class Cmt extends React.Component{
+export default class Cmt2 extends React.Component{
 
     constructor(){
         //由于基础了父类，首先调用super()，之后就可以使用this关键字
@@ -33,7 +31,7 @@ export default class Cmt extends React.Component{
                 <p style={ {color: 'red',fontSize:'35px',textAlign:'center'} }>评论列表组件</p>
                 {
                     this.state.cmList.map(item => 
-                        <CmtItem {...item}  key= {item.id}></CmtItem>
+                        <CmtItem2 {...item}  key= {item.id}></CmtItem2>
                     )
                 }
         </div>

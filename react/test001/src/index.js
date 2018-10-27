@@ -9,6 +9,7 @@ import ReactDOM from 'react-dom' //把创建好的组件和虚拟DOM放到页面
 //import '@/09.子类属性与方法.js'
 //import '@/10.使用class关键字创建组件.js'
 //import '@/11.评论列表示例.js'
-import '@/12.独立组件评论列表示例.js'
+//import '@/12.独立组件评论列表示例.js'
+import '@/13.css样式表.js'
 
 

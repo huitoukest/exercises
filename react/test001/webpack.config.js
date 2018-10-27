@@ -24,7 +24,8 @@ module.exports = {
       module:{ //module是配置第三方依赖包和扩展的匹配配置
            rules:[ //第三方匹配规则,这里匹配jsx和js格式的文件使用babel-loader来，同时如果使用到多个loader可以用数组配置
                   // 其次，一定要exclude ，配置排除/node_modules/文件夹下的内容
-                 { test: /\.js|\.jsx/ ,use: 'babel-loader' , exclude: /node_modules/ }
+                 { test: /\.js|\.jsx/ ,use: 'babel-loader' , exclude: /node_modules/ },
+                 { test: /\.css$/ ,use: ['style-loader','css-loader']} //打包处理css样式表的第三方loader
            ]
 
       },
@@ -35,4 +36,4 @@ module.exports = {
                   '@': path.join(__dirname,'./src')
             }
       }
-} 
+}
