@@ -1,12 +1,12 @@
-console.log("13.css样式表.js")
+console.log("14.事件绑定.js")
 
 import React from 'react'
 import ReactDOM from 'react-dom'
-import Cmt from '@/components/Cmt.2.jsx'
+import BindEvent from '@/components/BindEvent.jsx'
 
 
 const myTest = <div id="myDiv" title="div aaa" > 
-                    <Cmt > </Cmt>
+                    <BindEvent > </BindEvent>
                 </div>
 
 ReactDOM.render(myTest,document.getElementById('app'))
