@@ -10,8 +10,8 @@ object Ex010_01 {
   var letter = Array('a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r','s','t','u','v','w','x','y','z')
 
   def main(args: Array[String]): Unit = {
-    /*val testLength = 2
-    val pairStr = generatorSimpleRegExpStr(testLength,20)
+    val testLength = 1
+    val pairStr = generatorSimpleRegExpStr(testLength,1000)
     var isBreak = false
     for(i <- 0 until testLength if !isBreak){
       val pa = pairStr(i)
@@ -20,50 +20,26 @@ object Ex010_01 {
       if(!isMatch(pa._2,pa._1)){
         isBreak = true
       }
-    }*/
+    }
     println("random reg test over")
-    val sArray = Array("abccb","aabb");
-    val pattern = Array(".*a*ab.*c.",".*ab*")
+    val sArray = Array("aa");
+    val pattern = Array("a")
     for(i <- 0 until(sArray.length)){
       println(isMatch(sArray(i),pattern(i)))
     }
   }
 
-  def isMatch(s: String, p: String): Boolean = {
-      //1.将多个连接在一起的.*替换为一个.*，将p*后面的p*和ppp替换掉
-      def replaceRepeatReg(originalReg: String):List[String] = {
-          var strList = List[String]()
-          val originChars = originalReg.toCharArray()
-          var lastRegPar:String = null
-          var i =   originalReg.length - 1
-          while(i >= 0){
-              if(originChars(i) == '*'){
-                val lastChar = originChars(i - 1)
-                strList = strList :+ (lastChar.toString + originChars(i))
-                i -= 1
-              }else{
-                strList = strList :+ originChars(i).toString
-              }
-              i -= 1
-          } //倒序
-          strList = strList.reverse
-          //简单的去重重复
-          var reList = List[String]()
-          lastRegPar = null
-          for(i <- 0 until strList.length){
-              if(lastRegPar != null && (strList(i).size > 1) && lastRegPar != strList(i) && lastRegPar != ".*"){
-                reList = reList :+ strList(i)
-              }else if(lastRegPar != null && lastRegPar.size > 1 && !lastRegPar.endsWith(strList(i))){
-                reList = reList :+ strList(i)
-              }else{
-                reList = reList :+ strList(i)
-              }
-            lastRegPar = strList(i)
-          }
-        reList
-      }
+  def printDetail(chars: Array[Char] ,strPosition :Int,patterns: Array[Char],patternPosition: Int)={
+    val contentLength = chars.length
+    val regLength = patterns.length
+    println("______________")
+    println(chars.takeRight(contentLength - strPosition).toList)
+    println(patterns.takeRight(regLength - patternPosition).toList)
+  }
 
+  def isMatch(s: String, p: String): Boolean = {
       def isMatchArray(chars: Array[Char] ,strPosition :Int,patterns: Array[Char],patternPosition: Int ): Boolean = {
+        //printDetail(chars,strPosition,patterns,patternPosition)
         val contentLength = chars.length
         val regLength = patterns.length
         val contentRestLength = if(contentLength > 0 ) contentLength - strPosition else  0
@@ -89,13 +65,14 @@ object Ex010_01 {
                             var ok = false
                             var position = strPosition + matchCount
                             //计算一下最大能够模糊匹配的长度
-                            val maxLength = contentRestLength - patterns.takeRight(regRestLength).filter(it => it == '*').length * 2
+                            val restReg = patterns.takeRight(regRestLength)
+                            val maxLength = contentRestLength - (restReg.filter(it => it != '*').length - restReg.filter(it => it == '*').length)
                             val nextRegPosition = patternPosition + 2
-                            while (!ok && matchCount <= maxLength) {
+                            do{
                               var position = strPosition + matchCount
-                              ok = isMatchArray(chars, position, patterns, nextRegPosition);
+                              ok = ok || isMatchArray(chars, position, patterns, nextRegPosition);
                               matchCount += 1
-                            }
+                            }while (!ok && matchCount <= maxLength)
                             ok
                           }
                           case letter: Any => { //匹配单个字符
@@ -103,14 +80,13 @@ object Ex010_01 {
                             var ok = false
                             var position = strPosition + matchCount
                             //计算一下最大能够模糊匹配的长度
-                            val maxLength = patterns.takeRight(regRestLength).prefixLength(it => it != letter)
+                            val maxLength = chars.takeRight(contentRestLength).prefixLength(it => it == letter)
                             val nextRegPosition = patternPosition + 2
-                            ok = ok || isMatchArray(chars, strPosition, patterns, patternPosition + 2); // 匹配0个相对的情况
-                            while (!ok && matchCount <= maxLength && chars(position) == patterns(patternPosition)) { //匹配1个或者多个相等的情况
+                            do{ //匹配0个或者多个相等的情况
                               position = strPosition + matchCount
-                              ok = isMatchArray(chars, position, patterns, nextRegPosition);
+                              ok = ok || isMatchArray(chars, position, patterns, nextRegPosition);
                               matchCount += 1
-                            }
+                            }while (!ok && matchCount <= maxLength && chars(position) == patterns(patternPosition))
                             ok
                           }
                         }
@@ -123,19 +99,20 @@ object Ex010_01 {
                       }
                     }
                   }
-                }else{//如果是最后一位
-                    currentReg match {
+                }else if(contentRestLength == 1){//如果内容也是最后一位
+                  currentReg match {
                     case '.' => true
                     case _ if currentReg == chars(strPosition) => true
                     case _ => false
                   }
+                }else{
+                  false
                 }
           }else{
             false
           }
       }
       //1.将多个连接在一起的.*替换为一个.*
-
       isMatchArray(s.toCharArray,0,p.toCharArray,0)
   }
 
@@ -194,4 +171,39 @@ object Ex010_01 {
         }
       for(i <- 0 until length) yield makeStr()
     }
+
+  /**
+    * 1.将多个连接在一起的.*替换为一个.*，将p*后面的p*和ppp替换掉,对正则表达式本身进行一定的优化
+    */
+  def replaceRepeatReg(originalReg: String):List[String] = {
+    var strList = List[String]()
+    val originChars = originalReg.toCharArray()
+    var lastRegPar:String = null
+    var i =   originalReg.length - 1
+    while(i >= 0){
+      if(originChars(i) == '*'){
+        val lastChar = originChars(i - 1)
+        strList = strList :+ (lastChar.toString + originChars(i))
+        i -= 1
+      }else{
+        strList = strList :+ originChars(i).toString
+      }
+      i -= 1
+    } //倒序
+    strList = strList.reverse
+    //简单的去重重复
+    var reList = List[String]()
+    lastRegPar = null
+    for(i <- 0 until strList.length){
+      if(lastRegPar != null && (strList(i).size > 1) && lastRegPar != strList(i) && lastRegPar != ".*"){
+        reList = reList :+ strList(i)
+      }else if(lastRegPar != null && lastRegPar.size > 1 && !lastRegPar.endsWith(strList(i))){
+        reList = reList :+ strList(i)
+      }else{
+        reList = reList :+ strList(i)
+      }
+      lastRegPar = strList(i)
+    }
+    reList
+  }
 }
