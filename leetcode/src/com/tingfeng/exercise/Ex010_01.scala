@@ -10,7 +10,7 @@ object Ex010_01 {
   var letter = Array('a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r','s','t','u','v','w','x','y','z')
 
   def main(args: Array[String]): Unit = {
-    val testLength = 1
+    /*val testLength = 1
     val pairStr = generatorSimpleRegExpStr(testLength,1000)
     var isBreak = false
     for(i <- 0 until testLength if !isBreak){
@@ -20,10 +20,10 @@ object Ex010_01 {
       if(!isMatch(pa._2,pa._1)){
         isBreak = true
       }
-    }
+    }*/
     println("random reg test over")
-    val sArray = Array("aa");
-    val pattern = Array("a")
+    val sArray = Array("");
+    val pattern = Array("a*a*")
     for(i <- 0 until(sArray.length)){
       println(isMatch(sArray(i),pattern(i)))
     }
@@ -39,7 +39,7 @@ object Ex010_01 {
 
   def isMatch(s: String, p: String): Boolean = {
       def isMatchArray(chars: Array[Char] ,strPosition :Int,patterns: Array[Char],patternPosition: Int ): Boolean = {
-        //printDetail(chars,strPosition,patterns,patternPosition)
+        printDetail(chars,strPosition,patterns,patternPosition)
         val contentLength = chars.length
         val regLength = patterns.length
         val contentRestLength = if(contentLength > 0 ) contentLength - strPosition else  0
@@ -47,8 +47,14 @@ object Ex010_01 {
         if(contentRestLength <= 0 && regRestLength <= 0 ){ //匹配空
             true
           }else if(contentRestLength <= 0 && regRestLength > 0 ){
-            if(regLength > 1 && patterns(patternPosition + 1) == '*'){
-              true
+            if(regLength > 1){
+              if(patternPosition + 2 == regLength && patterns(patternPosition + 1) == '*'){
+                true
+              }else if(patternPosition + 1 < regLength && patterns(patternPosition + 1) == '*'){
+                isMatchArray(chars,strPosition,patterns,patternPosition + 2)
+              }else{
+                false
+              }
             }else {
               false
             }
