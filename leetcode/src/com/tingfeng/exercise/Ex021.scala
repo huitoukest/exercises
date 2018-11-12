@@ -1,5 +1,6 @@
 package com.tingfeng.exercise
 
+import com.tingfeng.excommon.ListNode
 import com.tingfeng.exercise.Ex020.isValid
 
 /**
