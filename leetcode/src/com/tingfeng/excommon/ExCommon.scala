@@ -2,7 +2,7 @@ package com.tingfeng
 
 import com.tingfeng.excommon.ListNode
 
-package object ExCommon {
+object ExCommon {
   implicit def toListNode(array : Array[Int]):ListNode = {
     if(array.length <= 0){
       null

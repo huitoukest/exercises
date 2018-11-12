@@ -1,6 +1,10 @@
 package com.tingfeng.exercise
 
-import com.tingfeng.excommon.ListNode
+import java.util.concurrent.ThreadLocalRandom
+
+import com.tingfeng.excommon.{ListNode, TestUtil}
+
+import scala.util.Sorting
 
 /**
   *
@@ -30,17 +34,43 @@ object Ex023 {
         }
     }
 
+    def printMergeTime(list :Array[ListNode],merge: (Array[ListNode]) => ListNode)={
+        TestUtil.printTime(1,1,index => {
+            val c = merge(list)
+            if(index == 0){
+                var next = c
+                var i = 0
+                while(next != null && i < 100){
+                    print(next.x + ",")
+                    next = next.next
+                    i += 1
+                }
+                println()
+            }
+        })
+    }
+
+    def getNewList(length:Int , perSize :Int):Array[ListNode]={
+        val list = new Array[Array[Int]](length).map(it =>{
+            val tmp:Array[Int]  = new Array(perSize)
+            for(i <- 0 until(tmp.length)){
+                tmp(i) = ThreadLocalRandom.current().nextInt(100000)
+            }
+            Sorting.quickSort(tmp)
+            tmp
+        }).map(it => toListNode(it))
+        list
+    }
+
     def main(args: Array[String]): Unit = {
         val a = Array[Int](1,4,5)
         val b = Array(1,3,5)
-        val list:Array[ListNode] = Array(toListNode(a),toListNode(b),toListNode(b),toListNode(Array(1,2,6)))
-        val c = mergeKLists(list)
-        var next = c
-        while(next != null){
-            print(next.x + ",")
-            next = next.next
-        }
-        println()
+        //val list:Array[ListNode] = Array(toListNode(a),toListNode(b),toListNode(b),toListNode(Array(1,2,6)))
+        //val c = mergeKLists(list)
+        var list = getNewList(1000,1000)
+        printMergeTime(list,mergeKLists)
+        list = getNewList(1000,1000)
+        printMergeTime(list,mergeKLists2)
     }
 
     /**
@@ -58,17 +88,17 @@ object Ex023 {
     }
 
     /**
-      * 方法2，全部采用归并的方式继续归并合并，归并合并的效率更低
+      * 方法2，全部采用归并的方式继续归并合并，归并合并的效率更高
       * @param lists
       * @return
       */
-    /*def mergeKLists(lists: Array[ListNode]): ListNode = {
+    def mergeKLists2(lists: Array[ListNode]): ListNode = {
         def merge(left:Int , right:Int): ListNode = {
             //println(s"left: $left  right: $right")
             if(right >= lists.length ){
                 null
             }else if(left == right) {
-               lists(0)
+               lists(left)
             }else if(right == left + 1){
                 mergeTwoLists(lists(left),lists(right))
             }else{
@@ -77,13 +107,15 @@ object Ex023 {
             }
         }
         var result:ListNode = null
-        if(lists.length < 0){
+        if(lists.length <= 0){
+            result = null
+        }else if(lists.length == 1){
             result = lists(0)
         }else{
             result = merge(0,lists.length - 1)
         }
         result
-    }*/
+    }
 
     def mergeTwoLists(l1: ListNode, l2: ListNode): ListNode = {
         var head:ListNode = new ListNode() //虚拟一个null头
