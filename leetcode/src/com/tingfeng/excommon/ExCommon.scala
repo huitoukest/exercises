@@ -3,17 +3,15 @@ package com.tingfeng
 import com.tingfeng.excommon.ListNode
 
 object ExCommon {
-  implicit def toListNode(array : Array[Int]):ListNode = {
-    if(array.length <= 0){
-      null
-    }else{
-      val nodes = array.map(it => new ListNode(it))
-      for(i <- 0 until array.length){
-        if(i > 0){
-          nodes(i - 1).next = nodes(i)
-        }
-      }
-      nodes(0)
+
+  def printListNode(c :ListNode)={
+    var next = c
+    var i = 0
+    while(next != null && i < 100){
+      print(next.x + ",")
+      next = next.next
+      i += 1
     }
+    println()
   }
 }
