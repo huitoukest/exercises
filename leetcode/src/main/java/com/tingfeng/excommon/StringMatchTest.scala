@@ -9,10 +9,27 @@ object StringMatchTest {
   var letter = Array('a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r','s','t','u','v','w','x','y','z')
 
   def main(args :Array[String]): Unit = {
-    val str = getStr(1000)
-    val subStr = str.substring(100,106);
-    //val str = "aaababbaababbbaaaababbbaaabbbbbbaabbaabbbabbbaaaababaabbbaabbababaaabaabbbb"
-    //val subStr = "abaaab"
+    testMany()
+    testOne()
+  }
+
+  def testMany(): Unit ={
+    for(i <- 0 until 20000) {
+      val str = getStr(10000)
+      val subStr = str.substring(100, 106);
+      if (str.indexOf(subStr) != kmpMath(str, subStr)) {
+        println
+        println(str)
+        println(subStr)
+        println(str.indexOf(subStr))
+        println(kmpMath(str,subStr))
+      }
+    }
+  }
+
+  def testOne(): Unit ={
+    val str = "aababaabaaaaababbbbbbbababbbbbaabbabababbaabbbaaabbaabbbaaabaabaabbaaabbabaaababaaaababbabbaaabaabbaabbbaabababbbabaabbbabbbababaab"
+    val subStr = "babaaa"
     println(str)
     println(subStr)
     println(str.indexOf(subStr))
@@ -36,9 +53,9 @@ object StringMatchTest {
     */
   def kmpMath(str: String,subString:String):Int = {
     val next = getNext(subString)
-    println
+    /*println
     next.foreach(it => print(it + ","))
-    println
+    println*/
     val charArray = str.toCharArray
     val subArray = subString.toCharArray
     var isContinue = true
@@ -51,18 +68,20 @@ object StringMatchTest {
         j +=  1
         i += 1
       }
-      if(j == subArray.length){
+      //println(str.substring(i))
+      if(j == subArray.length){//长度相等表示已经匹配成功了
         isContinue = false
         index = i - subArray.length
-      }else if(j > 0){
-        val nextStep = next(j)
-        j = nextStep
-        if(nextStep > 0){//索引的值比相同个数的值小1
-          j -= 1
-        }
-      }else{
+      }else if(j == 0){
         i += 1
-        j += 1
+      }else{
+        var nextStep = next(j - 1)
+        j = nextStep
+        //j = nextStep - 1 //索引的值比相同个数的值小1
+        /*if(j < 0){
+          j = 0
+          //i += 1
+        }*/
       }
     }
     index
@@ -81,10 +100,10 @@ object StringMatchTest {
         }
         next(i) = k
         i += 1
-      }else{ //当结果不想等的时候就一直递归的执行k = next(k)，此时i的值没有动；
+      }else{ //当结果不想等的时候就一直递归的执行k = next(k - 1)，此时i的值没有动；
         //直到k = 0,即subArray(i) = -1的时候，此时k会被赋值为-1，此时递归结束；
-        if(k != next(k)){
-          k = next(k)
+        if(k != next(k - 1)){//这里的k是前后缀相同的个数，如果是计算索引则需要减去1
+          k = next(k - 1)//这里的next(k - 1)实际上表示的是在位置i的前一个位置的后缀的值（因为这里前后缀相等关系），所以这里也表示其前缀的索引
         }else{
           k = 0
         }
@@ -92,6 +111,8 @@ object StringMatchTest {
     }
     //最后把所有的-1变为0，表示对比的数据不同的时候，移动到索引为0的位置
     next.map(it => if(it < 0) 0 else it)
+    //next(0) = -1
+    //next
   }
 
 
