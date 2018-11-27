@@ -1,6 +1,8 @@
 import java.util
 import java.util.concurrent.ThreadLocalRandom
 
+import com.tingfeng.excommon.TestUtil
+
 /**
   * 字符串匹配测试
   */
@@ -9,14 +11,29 @@ object StringMatchTest {
   var letter = Array('a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r','s','t','u','v','w','x','y','z')
 
   def main(args :Array[String]): Unit = {
-    testMany()
-    testOne()
+    //testKMPMany()
+    //testKMPOne()
+    //testKMPTime()
+    testStrHashMatch()
   }
 
-  def testMany(): Unit ={
+  def testKMPTime():Unit = {
+    TestUtil.printTime(1,10,index => {
+          val str = getStr(10000,5)
+          val subStr = str.substring(5000, 5010);
+          println(str.indexOf(subStr))
+    });
+    TestUtil.printTime(1,10,index => {
+      val str = getStr(10000,5)
+      val subStr = str.substring(5000, 5010);
+      println(kmpMath(str,subStr))
+    });
+  }
+
+  def testKMPMany(): Unit ={
     for(i <- 0 until 20000) {
       val str = getStr(10000)
-      val subStr = str.substring(100, 106);
+      val subStr = str.substring(8000, 8010);
       if (str.indexOf(subStr) != kmpMath(str, subStr)) {
         println
         println(str)
@@ -27,7 +44,7 @@ object StringMatchTest {
     }
   }
 
-  def testOne(): Unit ={
+  def testKMPOne(): Unit ={
     val str = "aababaabaaaaababbbbbbbababbbbbaabbabababbaabbbaaabbaabbbaaabaabaabbaaabbabaaababaaaababbabbaaabaabbaabbbaabababbbabaabbbabbbababaab"
     val subStr = "babaaa"
     println(str)
@@ -36,10 +53,10 @@ object StringMatchTest {
     println(kmpMath(str,subStr))
   }
 
-  def getStr(length: Int):String = {
+  def getStr(length: Int,letterCount : Int = 2):String = {
     val sb = new StringBuilder()
     for(i <- 0 until length){
-      val value = ThreadLocalRandom.current().nextInt(2)
+      val value = ThreadLocalRandom.current().nextInt(letterCount)
       sb.append(letter(value))
     }
     sb.toString()
@@ -115,5 +132,84 @@ object StringMatchTest {
     //next
   }
 
+  /**
+    * 测试hash匹配的情况
+    */
+  def testStrHashMatch(): Unit ={
+    for(i <- 0 until 10) {
+      val str = getStr(1000)
+      val subStr = str.substring(401, 426);
+      if (str.indexOf(subStr) != strHashMatch(str, subStr)) {
+        println
+        println(str)
+        println(subStr)
+        println(str.indexOf(subStr))
+        println(strHashMatch(str,subStr))
+      }
+    }
+  }
+
+  /**
+    * 用来取模的最大值
+    */
+  val modValue = Long.MaxValue / 3001
+
+  /**
+    * 字符串的Hash匹配方法
+    * @param str
+    * @param subString
+    * @return
+    */
+  def strHashMatch(str: String,subString:String):Int={
+    val charArray = str.toCharArray
+    val subArray = subString.toCharArray
+    var isContinue = true
+    var rightHashValue = 0L //记录主串的当前hash的值
+    var lastHashValue = 0L
+    var subHashValue = 0L //记录子串的当前hash的值
+    var leftHashValue = 0L //最左侧的索引的值的总和
+    var leftIndex = 0
+    var matchIndex = -1
+    var maxWeight = 1L //只要保证所有值得和不大于mod的值即可，所以这里
+    var decimalValue = 31L
+    if(subArray.length <= str.length){
+       for(i <- 0 until(subArray.length)){
+           //这里求出最高位的权重值,由于实际上的第一位权重值是0，所以这里实际上求出的是subArray.length位的权重值
+           maxWeight = maxWeight * decimalValue
+       }
+       for(index <- 0 until charArray.length if isContinue){
+          if(index < subArray.length ){
+              subHashValue = (subHashValue * decimalValue + subArray(index))
+          }
+          if(index <= subArray.length - 1){
+            leftIndex = 0
+          }else{
+            leftHashValue = (leftHashValue * decimalValue + charArray(leftIndex))
+            leftIndex += 1
+         }
+         rightHashValue = (rightHashValue * decimalValue + charArray(index))
+         var subValue = leftHashValue * maxWeight //如果溢出就相当于自动取余，如果这里手动取余数的话会导致其取的值实际上是系统溢出后的余数，即取余两次的结果，是不准确的。
+         /*if(subValue > 0) {
+            subValue = subValue % maxWeight
+         }else{
+           while (subValue < 0) {
+             subValue += modValue
+           }
+         }*/
+         var currentHash = (rightHashValue -  subValue)
+         /*if (rightHashValue < subValue) {
+           currentHash += modValue
+         }*/
+         if(index >= subArray.length) {
+           //如果长度相等，则每一次需要减去行一次的数值并加上此次的数值
+         }
+         if(index >= subArray.length - 1 && currentHash == subHashValue){
+           isContinue = false
+           matchIndex = index - subArray.length + 1
+         }
+       }
+    }
+    matchIndex
+  }
 
 }

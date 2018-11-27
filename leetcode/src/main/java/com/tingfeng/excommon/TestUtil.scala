@@ -27,7 +27,7 @@ object TestUtil {
             }
       }).start()
     }
-    val total = thread * cycleCountInThread
+    val total = thread
     while (value.get < total ) {
       try{
         Thread.sleep(2)
