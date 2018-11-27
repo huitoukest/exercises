@@ -13,11 +13,14 @@ object StringMatchTest {
   def main(args :Array[String]): Unit = {
     //testKMPMany()
     //testKMPOne()
-    //testKMPTime()
-    testStrHashMatch()
+    testTime()
+    //testStrHashMatch()
+    //println(isEq("babaaa".toCharArray,0,"babaaa".toCharArray))
+    //println(isEq("babaaa".toCharArray,0,"babaac".toCharArray))
+    //println(isEq("babaaa".toCharArray,0,"aabaac".toCharArray))
   }
 
-  def testKMPTime():Unit = {
+  def testTime():Unit = {
     TestUtil.printTime(1,10,index => {
           val str = getStr(10000,5)
           val subStr = str.substring(5000, 5010);
@@ -27,6 +30,11 @@ object StringMatchTest {
       val str = getStr(10000,5)
       val subStr = str.substring(5000, 5010);
       println(kmpMath(str,subStr))
+    });
+    TestUtil.printTime(1,10,index => {
+      val str = getStr(10000,5)
+      val subStr = str.substring(5000, 5010);
+      println(strHashMatch(str,subStr))
     });
   }
 
@@ -204,12 +212,26 @@ object StringMatchTest {
            //如果长度相等，则每一次需要减去行一次的数值并加上此次的数值
          }
          if(index >= subArray.length - 1 && currentHash == subHashValue){
-           isContinue = false
-           matchIndex = index - subArray.length + 1
+           //开始对比两个hash值相同的情况
+           val isEq = isStrEq(charArray,index - subArray.length + 1,subArray)
+           if(isEq){
+            isContinue = false
+            matchIndex = index - subArray.length + 1
+           }
          }
        }
     }
     matchIndex
+  }
+
+  def isStrEq(charArray : Array[Char],startIndex: Int,subArray: Array[Char]):Boolean = {
+      var isEq = true
+      for(j <- startIndex until subArray.length if isEq){
+        if(subArray(j) != charArray(j)){
+          isEq = false
+        }
+      }
+      isEq
   }
 
 }
