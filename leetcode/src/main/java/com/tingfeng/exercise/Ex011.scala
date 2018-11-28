@@ -9,7 +9,8 @@ object Ex011 {
 
 
   def main(args: Array[String]): Unit = {
-      val arrays = Array(1,8,6,2,5,4,8,3,7)
+      //预期24
+      val arrays = Array(1,3,2,5,25,24,5)
       print(maxArea(arrays))
   }
 
@@ -25,7 +26,7 @@ object Ex011 {
 
       while(i < j){
           maxValue = Math.max(maxValue,getArea(i,j))
-          if((height(i + 1) > height(i))){
+          if((height(j) > height(i))){//如果右边更高，则左边往右移动；
             i += 1
           }else{
             j -= 1

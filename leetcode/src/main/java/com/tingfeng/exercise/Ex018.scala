@@ -14,12 +14,13 @@ package com.tingfeng.exercise
   */
 object Ex018 {
 
-
+  val expectArray = Array(-5,-4,-3,1)
+  //[[-5,-4,-3,1]]
   def main(args: Array[String]): Unit = {
-      val arrays = List(Array(1, 0, -1, 0, -2, 2),
-                        Array(1, 0, 0, 0,5,3,-4,-7,9,-2,5, -2, 2));
+      val arrays = List( //Array(1, 0, -1, 0, -2, 2),
+                        Array(1,-2,-5,-4,-3,3,3,5));
       arrays.foreach(it =>{
-        println(fourSum(it,0))
+        println(fourSum(it,-11))
       })
 
   }
@@ -28,12 +29,12 @@ object Ex018 {
       val tupleSize = 4
       val sortNums = nums.sorted
       var result = List[List[Int]]()
-
+      val ltZeroIndex = sortNums.prefixLength( it => it < 0) - 1 //小于0的索引，左边小于0 ，右边大于等于0
       def fourSumN(startIndex: Int,currentTotal: Int,nowSize: Int,currentList:List[Int]): Unit = {
         for(index <- startIndex until nums.length){
             var total = currentTotal + sortNums(index)
             val needSize = tupleSize - nowSize
-            needSize match {
+            needSize match {//距离指定的x长度的数组还差的长度
                 case 1 => {
                   if(total == target){
                     val re = currentList :+ sortNums(index)
@@ -41,8 +42,12 @@ object Ex018 {
                   }
                 }
                 case a:Int if a > 0 => {
-                     if(total <= target){
+                     if(total <= target && index >= ltZeroIndex){
                        fourSumN(index + 1,total,nowSize + 1,currentList :+ sortNums(index))
+                     }else if(total >= target && index <= ltZeroIndex){
+                       fourSumN(index + 1,total,nowSize + 1,currentList :+ sortNums(index))
+                     }else if(expectArray(nowSize) == sortNums(index)){
+                       print()
                      }
                 }
               }
