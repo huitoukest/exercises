@@ -23,12 +23,12 @@ object Ex018 {
   val expectArray = Array(-5,-4,-3,1)
   //[[-5,-4,-3,1]]
   def main(args: Array[String]): Unit = {
-      val arrays = List( (Array(1, 0, -1, 0, -2, 2),0),
-                         (Array(1,-2,-5,-4,-3,3,3,5),-11),
-                         (Array(9,8,6,5,4,3,2,1,7,5,1,4,2,1,4,5,-6,-2,-3,-1,-8,-20,17,-13,-14,-1,-15,-21),5));
-      /*arrays.foreach(it =>{
-        println(fourSum(it._1,it._2))
-      })*/
+    val arrays = List( (Array(1, 0, -1, 0, -2, 2),0),
+      (Array(1,-2,-5,-4,-3,3,3,5),-11),
+      (Array(9,8,6,5,4,3,2,1,7,5,1,4,2,1,4,5,-6,-2,-3,-1,-8,-20,17,-13,-14,-1,-15,-21),5));
+    /*arrays.foreach(it =>{
+      println(fourSum(it._1,it._2))
+    })*/
 
     arrays.foreach(it =>{
       println(fourSum2(it._1,it._2))
@@ -38,11 +38,11 @@ object Ex018 {
     })
 
     TestUtil.printTime(1,5000,index =>{
-        //fourSum(arrays(0),-11)
-        arrays.foreach(it =>{
-          fourSum(it._1,it._2)
-        })
-      });
+      //fourSum(arrays(0),-11)
+      arrays.foreach(it =>{
+        fourSum(it._1,it._2)
+      })
+    });
     TestUtil.printTime(1,5000,index =>{
       arrays.foreach(it =>{
         fourSum2(it._1,it._2)
@@ -62,37 +62,37 @@ object Ex018 {
     * @return
     */
   def fourSum(nums: Array[Int], target: Int): List[List[Int]] = {
-      val tupleSize = 4
-      val sortNums = nums.sorted
-      var result = ListBuffer[List[Int]]()
-      val ltZeroIndex = sortNums.prefixLength( it => it <= 0) - 1 //小于0的索引，左边小于等于0 ，右边大于0
-      def fourSumN(startIndex: Int,currentTotal: Int,nowSize: Int,currentList:List[Int]): Unit = {
-            val isBiggerTotal = currentTotal >= target
-            Breaks.breakable {
-              for (index <- startIndex until nums.length) {
-                if(isBiggerTotal && index > ltZeroIndex){//当前的值是否过大
-                  Breaks.break()
-                }
-                var total = currentTotal + sortNums(index)
-                val needSize = tupleSize - nowSize
-                needSize match {
-                  //距离指定的x长度的数组还差的长度
-                  case 1 => {
-                    if (total == target) {
-                      val re = currentList :+ sortNums(index)
-                      result +=re
-                    }
-                  }
-                  case a: Int if a > 0 => {
-                    //这里存在的问题是：
-                    //如果total >= target，而且右边的值是大于0的并且会越来越大，那么就不可取
-                    //而如果total <= target 但是，index却在小于ltZeroIndex的地方确实可取的，因为后面的值会越来越大，最终有可能将之和为target
-                    fourSumN(index + 1, total, nowSize + 1, currentList :+ sortNums(index))
-                  }
-                }
+    val tupleSize = 4
+    val sortNums = nums.sorted
+    var result = ListBuffer[List[Int]]()
+    val ltZeroIndex = sortNums.prefixLength( it => it <= 0) - 1 //小于0的索引，左边小于等于0 ，右边大于0
+    def fourSumN(startIndex: Int,currentTotal: Int,nowSize: Int,currentList:List[Int]): Unit = {
+      val isBiggerTotal = currentTotal >= target
+      Breaks.breakable {
+        for (index <- startIndex until nums.length) {
+          if(isBiggerTotal && index > ltZeroIndex){//当前的值是否过大
+            Breaks.break()
+          }
+          var total = currentTotal + sortNums(index)
+          val needSize = tupleSize - nowSize
+          needSize match {
+            //距离指定的x长度的数组还差的长度
+            case 1 => {
+              if (total == target) {
+                val re = currentList :+ sortNums(index)
+                result +=re
+              }
+            }
+            case a: Int if a > 0 => {
+              //这里存在的问题是：
+              //如果total >= target，而且右边的值是大于0的并且会越来越大，那么就不可取
+              //而如果total <= target 但是，index却在小于ltZeroIndex的地方确实可取的，因为后面的值会越来越大，最终有可能将之和为target
+              fourSumN(index + 1, total, nowSize + 1, currentList :+ sortNums(index))
             }
           }
+        }
       }
+    }
     fourSumN(0,0,0,List[Int]())
     //去重复
     result.toList.distinct
@@ -183,18 +183,27 @@ object Ex018 {
     }else {
       val sortNums = nums.sorted
       var result = ListBuffer[List[Int]]()
-      val sumLeftMin : Long = sortNums.take(tupleSize).sum //使用long类型防止溢出
-      val sumRightMax : Long = sortNums.takeRight(tupleSize).sum
+      var maxValues = new Array[Long](sortNums.length)
+      var tmpValue = 0L
+      val stopIndex = sortNums.length - tupleSize
+      for(i <- sortNums.length - 1 to 0 by -1){
+        if(i >= stopIndex){
+          tmpValue = tmpValue +  sortNums(i)
+        }
+        maxValues(i) = tmpValue
+      }
+      maxValues = maxValues.reverse
       val dataMapTmp = nums.groupBy(a => a).map(it => (it._1, it._2.length))
       val dataMap = new mutable.HashMap[Int, Int]()
       dataMapTmp.foreach(it => dataMap += it)
       val ltZeroIndex = sortNums.prefixLength(it => it <= 0) - 1 //小于0的索引，左边小于等于0 ，右边大于0
+
       //由于每次一次调用都需要生成新的List，所以currentList这里不能使用ListBuffer
-      def fourSumN(sumRight: Long,startIndex: Int, currentTotal: Int, nowSize: Int, currentList: List[Int]): Unit = {
+      def fourSumN(startIndex: Int, currentTotal: Int, nowSize: Int, currentList: List[Int]): Unit = {
         val needSize = tupleSize - nowSize
         if (needSize >= 1 && needSize <= sortNums.length - startIndex) {
           val needValue = target - currentTotal
-          if (needValue <= sumRight) {
+          if (needValue >= sortNums(startIndex) * needSize && needValue <= maxValues(startIndex)) {
             if (needSize == 1) {
               val tmpValue = dataMap.get(needValue)
               if (tmpValue.isDefined && needValue >= sortNums(startIndex)) { //由于比needValue小的值已经使用过，所以这里排除
@@ -204,34 +213,26 @@ object Ex018 {
             } else {
               val isBiggerTotal = currentTotal >= target
               Breaks.breakable {
-                val sumRightTmp : Long = sortNums.takeRight(needSize).sum
-                val maxIndex = sortNums.length - needSize + 1
-                for (index <- startIndex until maxIndex) {
+                for (index <- startIndex until nums.length) {
                   if (isBiggerTotal && index > ltZeroIndex) {
                     //当前的值是否过大
                     Breaks.break()
                   }
                   var total = currentTotal + sortNums(index)
-                  val sumLeftTmp : Long  = sortNums.toStream.slice(index + 1,needSize).sum
-                  val tmpValue = target - total
-                  if(sumLeftTmp > tmpValue || tmpValue > sumRightTmp){
-                    Breaks.break();
+                  if(startIndex != index && target - total > maxValues(index)){
+                    Breaks.break()
                   }
-                  fourSumN(sumRightTmp,index + 1, total, nowSize + 1, currentList :+ sortNums(index))
+                  fourSumN(index + 1, total, nowSize + 1, currentList :+ sortNums(index))
                 }
               } // end breable
             }//need size
           }
         }
       }
-      if(sumLeftMin > target){
-        List[List[Int]]()
-      }else{
-        fourSumN(sumRightMax,0, 0, 0, List[Int]())
-        //去重复
-        result.toList.distinct
-        //result
-      }
+      fourSumN(0, 0, 0, List[Int]())
+      //去重复
+      result.toList.distinct
+      //result
     }
   }
 }
