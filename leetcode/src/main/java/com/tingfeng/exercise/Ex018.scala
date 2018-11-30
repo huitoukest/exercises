@@ -29,18 +29,28 @@ object Ex018 {
       /*arrays.foreach(it =>{
         println(fourSum(it._1,it._2))
       })*/
-      TestUtil.printTime(1,5000,index =>{
+
+    arrays.foreach(it =>{
+      println(fourSum2(it._1,it._2))
+    })
+    arrays.foreach(it =>{
+      println(fourSum3(it._1,it._2))
+    })
+
+    TestUtil.printTime(1,5000,index =>{
         //fourSum(arrays(0),-11)
         arrays.foreach(it =>{
           fourSum(it._1,it._2)
         })
       });
-    arrays.foreach(it =>{
-      println(fourSum2(it._1,it._2))
-    })
     TestUtil.printTime(1,5000,index =>{
       arrays.foreach(it =>{
         fourSum2(it._1,it._2)
+      })
+    })
+    TestUtil.printTime(1,5000,index =>{
+      arrays.foreach(it =>{
+        fourSum3(it._1,it._2)
       })
     })
   }
@@ -89,7 +99,9 @@ object Ex018 {
     //result
   }
 
-  /**
+  /** 0.1 对于target而言，求n个数之和（设置A）等于其值，那么A总是大于等于sortNums的做百年n数之和，小于等于右边n数之和
+    * 0.2 从0.1可以推测，由于sortNums数组从小打到排列，那么A总是大于等于
+    * 0.3 当前sortNums中还未匹配的记录的数量必须大于等于needSize
     * 1.最后剩余一个值的时候可以使用HashMap来获取，在HashMap中key是当前的值，value是当前值的数量
     * @param nums
     * @param target
@@ -97,41 +109,116 @@ object Ex018 {
     */
   def fourSum2(nums: Array[Int], target: Int): List[List[Int]] = {
     val tupleSize = 4
-    val sortNums = nums.sorted
-    var result = ListBuffer[List[Int]]()
-    val dataMapTmp = nums.groupBy(a => a).map(it => (it._1,it._2.length))
-    val dataMap = new mutable.HashMap[Int,Int]()
-    dataMapTmp.foreach(it => dataMap += it)
-    val ltZeroIndex = sortNums.prefixLength( it => it <= 0) - 1 //小于0的索引，左边小于等于0 ，右边大于0
-    //由于每次一次调用都需要生成新的List，所以currentList这里不能使用ListBuffer
-    def fourSumN(startIndex: Int,currentTotal: Int,nowSize: Int,currentList:List[Int]): Unit = {
-      val needSize = tupleSize - nowSize
-      if(needSize >= 1 && startIndex < sortNums.length) {
-        if (needSize == 1) {
+    if(nums.length == 0 || nums.length < tupleSize){
+      List[List[Int]]()
+    }else {
+      val sortNums = nums.sorted
+      var result = ListBuffer[List[Int]]()
+      val maxValue = sortNums(sortNums.length - 1)
+      val dataMapTmp = nums.groupBy(a => a).map(it => (it._1, it._2.length))
+      val dataMap = new mutable.HashMap[Int, Int]()
+      dataMapTmp.foreach(it => dataMap += it)
+      val ltZeroIndex = sortNums.prefixLength(it => it <= 0) - 1 //小于0的索引，左边小于等于0 ，右边大于0
+      //由于每次一次调用都需要生成新的List，所以currentList这里不能使用ListBuffer
+      def fourSumN(startIndex: Int, currentTotal: Int, nowSize: Int, currentList: List[Int]): Unit = {
+        val needSize = tupleSize - nowSize
+        if (needSize >= 1 && needSize <= sortNums.length - startIndex) {
           val needValue = target - currentTotal
-          val tmpValue = dataMap.get(needValue)
-          if (tmpValue.isDefined && needValue >= sortNums(startIndex)) { //由于比needValue小的值已经使用过，所以这里排除
-            val re = currentList :+ needValue
-            result  += re
-          }
-        } else {
-          val isBiggerTotal = currentTotal >= target
-          Breaks.breakable {
-            for (index <- startIndex until nums.length) {
-              if (isBiggerTotal && index > ltZeroIndex) {
-                //当前的值是否过大
-                Breaks.break()
+          if (needValue >= sortNums(startIndex) * needSize && needValue <= maxValue * needSize) {
+            if (needSize == 1) {
+              val tmpValue = dataMap.get(needValue)
+              if (tmpValue.isDefined && needValue >= sortNums(startIndex)) { //由于比needValue小的值已经使用过，所以这里排除
+                val re = currentList :+ needValue
+                result += re
               }
-              var total = currentTotal + sortNums(index)
-              fourSumN(index + 1, total, nowSize + 1, currentList :+ sortNums(index))
-            }
-          } // end breable
+            } else {
+              val isBiggerTotal = currentTotal >= target
+              Breaks.breakable {
+                for (index <- startIndex until nums.length) {
+                  if (isBiggerTotal && index > ltZeroIndex) {
+                    //当前的值是否过大
+                    Breaks.break()
+                  }
+                  var total = currentTotal + sortNums(index)
+                  fourSumN(index + 1, total, nowSize + 1, currentList :+ sortNums(index))
+                }
+              } // end breable
+            }//need size
+          }
         }
       }
+      fourSumN(0, 0, 0, List[Int]())
+      //去重复
+      result.toList.distinct
+      //result
     }
-    fourSumN(0,0,0,List[Int]())
-    //去重复
-    result.toList.distinct
-    //result
+  }
+
+
+  /**
+    * 1.fourSum2 中判断的是needValue >= sortNums(startIndex) * needSize && needValue <= maxValue * needSize 作为过滤条件
+    *   这个是属于一个模糊判断，但是只需要计算1步奏
+    * 2. 我们可以通过当前值、数量与最大最小值计算得到当前的startIndex与endIndex，然后在其中循环来提高效率
+    * @param nums
+    * @param target
+    * @return
+    */
+  def fourSum3(nums: Array[Int], target: Int): List[List[Int]] = {
+    val tupleSize = 4
+    if(nums.length == 0 || nums.length < tupleSize){
+      List[List[Int]]()
+    }else {
+      val sortNums = nums.sorted
+      var result = ListBuffer[List[Int]]()
+      val sumLeftMin : Long = sortNums.take(tupleSize).sum //使用long类型防止溢出
+      val sumRightMax : Long = sortNums.takeRight(tupleSize).sum
+      val dataMapTmp = nums.groupBy(a => a).map(it => (it._1, it._2.length))
+      val dataMap = new mutable.HashMap[Int, Int]()
+      dataMapTmp.foreach(it => dataMap += it)
+      val ltZeroIndex = sortNums.prefixLength(it => it <= 0) - 1 //小于0的索引，左边小于等于0 ，右边大于0
+      //由于每次一次调用都需要生成新的List，所以currentList这里不能使用ListBuffer
+      def fourSumN(sumRight: Long,startIndex: Int, currentTotal: Int, nowSize: Int, currentList: List[Int]): Unit = {
+        val needSize = tupleSize - nowSize
+        if (needSize >= 1 && needSize <= sortNums.length - startIndex) {
+          val needValue = target - currentTotal
+          if (needValue <= sumRight) {
+            if (needSize == 1) {
+              val tmpValue = dataMap.get(needValue)
+              if (tmpValue.isDefined && needValue >= sortNums(startIndex)) { //由于比needValue小的值已经使用过，所以这里排除
+                val re = currentList :+ needValue
+                result += re
+              }
+            } else {
+              val isBiggerTotal = currentTotal >= target
+              Breaks.breakable {
+                val sumRightTmp : Long = sortNums.takeRight(needSize).sum
+                val maxIndex = sortNums.length - needSize + 1
+                for (index <- startIndex until maxIndex) {
+                  if (isBiggerTotal && index > ltZeroIndex) {
+                    //当前的值是否过大
+                    Breaks.break()
+                  }
+                  var total = currentTotal + sortNums(index)
+                  val sumLeftTmp : Long  = sortNums.toStream.slice(index + 1,needSize).sum
+                  val tmpValue = target - total
+                  if(sumLeftTmp > tmpValue || tmpValue > sumRightTmp){
+                    Breaks.break();
+                  }
+                  fourSumN(sumRightTmp,index + 1, total, nowSize + 1, currentList :+ sortNums(index))
+                }
+              } // end breable
+            }//need size
+          }
+        }
+      }
+      if(sumLeftMin > target){
+        List[List[Int]]()
+      }else{
+        fourSumN(sumRightMax,0, 0, 0, List[Int]())
+        //去重复
+        result.toList.distinct
+        //result
+      }
+    }
   }
 }
