@@ -39,5 +39,6 @@ captures/
 /src/main/*.iml
 *.iml
 /react/test001/dist/main.js
-/react/test001/node_modules
+*/node_modules
+*/*/node_modules
 /react/test001/.vscode

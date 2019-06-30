@@ -1,0 +1,20 @@
+{
+    "compilerOptions": {
+        "outDir": "./built",
+        "allowJs": true,
+        "target": "es5",
+        //"module": "commonjs",
+    },
+    "include": [
+        "./src/**/*"
+    ],
+    "baseUrl": ".", // This must be specified if "paths" is.
+    "paths": {
+      "jquery": ["node_modules/jquery/dist/jquery"] // 此处映射是相对于"baseUrl" "paths"是相对于"baseUrl"进行解析
+    },
+    "rootDirs": [
+        "src/views",
+        "generated/templates/views"
+      ],
+    "exclude": ["node_modules"]
+}
