@@ -13,8 +13,7 @@
       "jquery": ["node_modules/jquery/dist/jquery"] // 此处映射是相对于"baseUrl" "paths"是相对于"baseUrl"进行解析
     },
     "rootDirs": [
-        "src/views",
-        "generated/templates/views"
+        "src"
       ],
     "exclude": ["node_modules"]
 }
