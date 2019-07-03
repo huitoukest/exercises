@@ -23,7 +23,7 @@ namespace stringTest{
     let getAge = function():number{
         return 18;
     }
-    //默认将字符串模板拆分为多个参数（一个数组），其中第一个参数表示模板字符串除以${}分隔的部分;
+    //默认将字符串模板拆分为多个参数（一个数组），其中第一个参数表示模板字符串除以${}分隔的部分组成了一个数组：内容是["hello my name is ", " , i'm ", ""];
     //之后的内容就是每个${}中的内容
     test`hello my name is ${myName} , i'm ${getAge()}`;
 
