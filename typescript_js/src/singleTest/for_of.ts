@@ -13,5 +13,11 @@ namespace for_of{
     for(let value of array1){
         console.log(value)
     }
-    
+
+    //打印出每一个字符串中的字符
+    let str = "abcdefg";
+    for(let c of str){
+        console.log(c);
+    }
+
 }
