@@ -5,6 +5,11 @@
         "target": "es5",
         //"module": "commonjs",
     },
+    "lib": [      
+        "dom",
+        "es2015",
+        "esnext.asynciterable"
+      ],
     "include": [
         "./src/**/*"
     ],
